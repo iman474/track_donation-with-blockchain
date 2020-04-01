@@ -1,0 +1,95 @@
+/**
+ * Write your model definitions here
+ */
+
+namespace org.global.citizens.net
+
+enum Status{
+  o INITIALSTATE
+  o GLOBALCITIZENREVIEW
+  o GOVORGREVIEW
+  o PROPOSALFUNDED
+}
+
+enum FundingType{
+  o WEEKLY
+  o MONTHLY
+  o SEMIANNUALY
+  o ANNUALY
+}
+enum FundingStatus{
+  o COMPLETE
+  o INCOMPLETE
+}
+
+enum MessageStatus{
+  o NOTREVIEWED
+  o REVIEWED
+}
+
+concept Funding {
+  o FundingType fundingType  
+  o Integer nextFundingDueInDays
+  o Double approvedFunding
+  o Double totalFundsReceived
+  o Double fundsPerInstallment
+  --> Monetaryfound monetaryfoundId
+}
+
+asset ProjectPledge identified by pledgeId {
+  o String pledgeId
+  o String name
+  o String decription
+  o Double fundsRequired
+  o Status status
+  --> Charity charity
+  o Funding[] funds
+}
+
+abstract participant User {
+  --> ProjectPledge[] projectPledge
+}
+
+participant Monetaryfound identified by monetaryfoundId extends User {
+  o String monetaryfoundId
+  --> ProjectPledge[] fundedPledges
+}
+
+participant Charity identified by charityId extends User {
+  o String charityId
+}
+
+participant GlobalCitizen identified by citizenId extends User {
+  o String citizenId
+}
+
+transaction CreateProjectPledge {
+  o String pledgeId
+  o String name
+  o String decription
+  o Double fundsRequired
+  --> Charity charity
+}
+
+transaction SendPledgeToGlobalCitizen {
+  --> GlobalCitizen citizenId
+  --> ProjectPledge pledgeId
+}
+
+transaction SendPledgeToMonetaryfound {
+  --> Monetaryfound[] monetaryfound
+  --> ProjectPledge pledgeId
+}
+
+transaction UpdatePledge {
+  --> Monetaryfound monetaryfoundId
+  --> ProjectPledge pledgeId
+  o FundingType fundingType
+  o Double approvedFunding
+  o Double fundsPerInstallment
+}
+
+transaction TransferFunds {
+  --> Monetaryfound monetaryfoundId
+  --> ProjectPledge pledgeId
+}
